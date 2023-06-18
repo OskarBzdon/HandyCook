@@ -22,8 +22,8 @@ namespace HandyCook.API.Controllers
             _signInManager = signInManager;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<LoginResponse>> Login(LoginRequest loginRequest)
+        [HttpGet(nameof(Login))]
+        public async Task<ActionResult<LoginResponse>> Login([FromQuery] LoginRequest loginRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -40,14 +40,14 @@ namespace HandyCook.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<User>> Register(RegisterRequest registerRequest)
+        [HttpPost(nameof(Register))]
+        public async Task<ActionResult<User>> Register([FromQuery] RegisterRequest registerRequest)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var user = new User() { Email = registerRequest.Email };
+            var user = new User() { UserName = registerRequest.Email, Email = registerRequest.Email };
             var result = await _userManager.CreateAsync(user, registerRequest.Password);
 
             if (!result.Succeeded)
@@ -58,7 +58,7 @@ namespace HandyCook.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("Logout")]
+        [HttpPost(nameof(Logout))]
         public async Task<ActionResult<User>> Logout()
         {
             await _signInManager.SignOutAsync();

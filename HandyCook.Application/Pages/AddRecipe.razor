@@ -1,0 +1,61 @@
+﻿@using HandyCook.Application.Data
+@using Microsoft.AspNetCore.Identity;
+@using System.Security.Claims;
+
+@inject ApplicationDbContext ctx
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+
+@page "/recipe/add"
+
+<PageTitle>Add Recipe</PageTitle>
+
+<h1>Add Recipe</h1>
+
+<label>Title</label>
+<input @bind="model.Name" />
+<label>Description</label>
+<input @bind="model.Description" />
+
+<button class="btn btn-primary" @onclick="@addRecipe">Add recipe</button>
+
+<label class="text @(isError ? "text-danger" : "text-primary")">@message</label>
+
+@code {
+    private Recipe model = new Recipe();
+    private string message = string.Empty;
+    private bool isError = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier);
+        Console.WriteLine(userId);
+        model.UserNavigationId = userId.Value;
+
+    }
+
+    async Task addRecipe()
+    {
+        try
+        {
+            var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+            var user = authstate.User;
+
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier);
+            Console.WriteLine(userId);
+            model.UserNavigationId = userId.Value;
+
+            await ctx.Recipes.AddAsync(model);
+            await ctx.SaveChangesAsync();
+            isError = false;
+        }
+        catch (OperationCanceledException ex)
+        {
+            Console.WriteLine(ex.Message);
+            isError = true;
+            message = ex.Message;
+        }
+    }
+}

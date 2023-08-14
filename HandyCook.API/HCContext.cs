@@ -23,6 +23,6 @@ namespace HandyCook.API
         }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<HandyCook.API.Models.Recipe> Recipe { get; set; } = default!;
+        public DbSet<Recipe> Recipe { get; set; } = default!;
     }
 }

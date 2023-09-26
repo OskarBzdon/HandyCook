@@ -31,9 +31,8 @@
         var user = authstate.User;
 
         var userId = user.FindFirst(ClaimTypes.NameIdentifier);
-        Console.WriteLine(userId);
-        model.UserNavigationId = userId.Value;
-
+        if (userId is not null)
+            model.UserNavigationId = userId.Value;
     }
 
     async Task addRecipe()
@@ -42,10 +41,6 @@
         {
             var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
             var user = authstate.User;
-
-            var userId = user.FindFirst(ClaimTypes.NameIdentifier);
-            Console.WriteLine(userId);
-            model.UserNavigationId = userId.Value;
 
             await ctx.Recipes.AddAsync(model);
             await ctx.SaveChangesAsync();

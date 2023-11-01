@@ -1,11 +1,28 @@
 ﻿@page "/"
 @using HandyCook.Application.Data;
+@using MudBlazor
 
 @inject ApplicationDbContext ctx
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Recie Gallery</PageTitle>
 
-@foreach (var recipe in Recipes)
-{
-    <span>@recipe.Name - @recipe.Description</span>
-}
+<MudBlazor.MudGrid Justify="Justify.Center">
+    @foreach (var recipe in Recipes)
+    {
+        <MudItem xs="6">
+            <MudCard>
+                @* <MudCardMedia Image="images/door.jpg" Height="200" /> *@
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">@recipe.Name</MudText>
+                    <MudText Typo="Typo.body2">Old paint found on a stone house door.</MudText>
+                    <MudText Typo="Typo.body2">This photo was taken in a small village in Istra Croatia.</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary">Share</MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary">Learn More</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+</MudBlazor.MudGrid>
+

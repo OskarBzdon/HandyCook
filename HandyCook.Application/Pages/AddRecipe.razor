@@ -7,40 +7,69 @@
 
 @page "/recipe/add"
 
-<PageTitle>Add Recipe</PageTitle>
+<MudContainer>
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h4">Add Recipe</MudText>
 
-<h1>Add Recipe</h1>
+            <MudTextField Label="Title" @bind-Value="model.Name" />
+            <MudTextField Label="Description" @bind-Value="model.Description" />
+            
+            <MudFileUpload T="IBrowserFile" Accept=".jpg, .png" FilesChanged="UploadFile">
+                <ButtonTemplate>
+                    <MudButton HtmlTag="Upload Image"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Image"
+                               for="@context">
+                        Upload Image
+                    </MudButton>
+                </ButtonTemplate>
+            </MudFileUpload>
 
-<label>Title</label>
-<input @bind="model.Name" />
-<label>Description</label>
-<input @bind="model.Description" />
-
-<button class="btn btn-primary" @onclick="@addRecipe">Add recipe</button>
-
-<label class="text @(isError ? "text-danger" : "text-primary")">@message</label>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@addRecipe">Add recipe</MudButton>
+            
+            @if (isError)
+            {
+                <MudText Typo="Typo.h6" Color="Color.Error">@message</MudText>
+            }
+            else
+            {
+                <MudText Typo="Typo.h6" Color="Color.Primary">@message</MudText>
+            }
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
 
 @code {
     private Recipe model = new Recipe();
     private string message = string.Empty;
     private bool isError = false;
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
-        var user = authstate.User;
+        var authState = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authState.User;
 
         var userId = user.FindFirst(ClaimTypes.NameIdentifier);
         if (userId is not null)
+        {
             model.UserNavigationId = userId.Value;
+        }
     }
 
-    async Task addRecipe()
+    private async Task UploadFile(IBrowserFile file)
+    {
+        model.Images.Add(new File(file));
+        //TODO upload the files to the server
+    }
+
+    private async Task addRecipe()
     {
         try
         {
-            var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
-            var user = authstate.User;
+            var authState = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+            var user = authState.User;
 
             await ctx.Recipes.AddAsync(model);
             await ctx.SaveChangesAsync();

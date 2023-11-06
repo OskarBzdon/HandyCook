@@ -1,9 +1,14 @@
 ﻿@using HandyCook.Application.Data
+@using HandyCook.Application.Services;
 @using Microsoft.AspNetCore.Identity;
 @using System.Security.Claims;
+@using MudBlazor
 
 @inject ApplicationDbContext ctx
 @inject AuthenticationStateProvider GetAuthenticationStateAsync
+@inject ISnackbar Snackbar // Add this to your @inject directives
+@inject NavigationManager NavigationManager // For redirection
+@inject IUserService UserService
 
 @page "/recipe/add"
 
@@ -14,10 +19,10 @@
 
             <MudTextField Label="Title" @bind-Value="model.Name" />
             <MudTextField Label="Description" @bind-Value="model.Description" />
-            
+
             <MudFileUpload T="IBrowserFile" Accept=".jpg, .png" FilesChanged="UploadFile">
                 <ButtonTemplate>
-                    <MudButton HtmlTag="Upload Image"
+                    <MudButton HtmlTag="label"
                                Variant="Variant.Filled"
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Image"
@@ -27,7 +32,7 @@
                 </ButtonTemplate>
             </MudFileUpload>
 
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@addRecipe">Add recipe</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveRecipe">Add recipe</MudButton>
             
             @if (isError)
             {
@@ -45,41 +50,58 @@
     private Recipe model = new Recipe();
     private string message = string.Empty;
     private bool isError = false;
+    private bool isFileUploaded = false; // To keep track of file upload status
+
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        var userId = user.FindFirst(ClaimTypes.NameIdentifier);
+        var userId = await UserService.GetCurrentUserIdAsync();
         if (userId is not null)
         {
-            model.UserNavigationId = userId.Value;
+            model.UserNavigationId = userId;
         }
     }
 
     private async Task UploadFile(IBrowserFile file)
     {
-        model.Images.Add(new File(file));
-        //TODO upload the files to the server
+        try
+        {
+            var fileModel = await File.CreateAsync(file);
+            model.Images.Add(fileModel);
+            isFileUploaded = true;
+            Snackbar.Add("File uploaded successfully!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            isFileUploaded = false;
+            Snackbar.Add("Failed to upload file: " + ex.Message, Severity.Error);
+        }
     }
 
-    private async Task addRecipe()
+    private async Task SaveRecipe()
     {
         try
         {
-            var authState = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
-            var user = authState.User;
+            model.UserNavigationId = await UserService.GetCurrentUserIdAsync();
+            if (string.IsNullOrEmpty(model.UserNavigationId))
+            {
+                throw new InvalidOperationException("User must be logged in to add a recipe.");
+            }
+
+            if (!isFileUploaded)
+            {
+                Snackbar.Add("Please upload a file before adding the recipe.", Severity.Warning);
+                return;
+            }
 
             await ctx.Recipes.AddAsync(model);
             await ctx.SaveChangesAsync();
-            isError = false;
+            Snackbar.Add("Recipe added successfully!", Severity.Success);
+            NavigationManager.NavigateTo("/");
         }
-        catch (OperationCanceledException ex)
+        catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
-            isError = true;
-            message = ex.Message;
+            Snackbar.Add($"Failed to add recipe: {ex.Message}", Severity.Error);
         }
     }
 }

@@ -1,5 +1,6 @@
 using HandyCook.Application.Areas.Identity;
 using HandyCook.Application.Data;
+using HandyCook.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -20,7 +21,9 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
+
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddAuthentication()
    .AddGoogle(options =>

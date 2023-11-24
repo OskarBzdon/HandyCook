@@ -1,28 +1,50 @@
 ﻿@page "/"
 @using HandyCook.Application.Data;
+@using HandyCook.Application.Services;
 @using MudBlazor
+@using global::AutoMapper
+@using HandyCook.Application.Components
 
 @inject ApplicationDbContext ctx
+@inject IUserService UserService
+@inject ISnackbar Snackbar
+@inject IMapper Mapper
+@inject NavigationManager NavigationManager
 
-<PageTitle>Recie Gallery</PageTitle>
+<PageTitle>Recipe Gallery</PageTitle>
 
-<MudBlazor.MudGrid Justify="Justify.Center">
-    @foreach (var recipe in Recipes)
+<MudGrid Justify="Justify.FlexStart">
+    @if (Recipes is null)
     {
-        <MudItem xs="6">
-            <MudCard>
-                @* <MudCardMedia Image="images/door.jpg" Height="200" /> *@
-                <MudCardContent>
-                    <MudText Typo="Typo.h5">@recipe.Name</MudText>
-                    <MudText Typo="Typo.body2">Old paint found on a stone house door.</MudText>
-                    <MudText Typo="Typo.body2">This photo was taken in a small village in Istra Croatia.</MudText>
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton Variant="Variant.Text" Color="Color.Primary">Share</MudButton>
-                    <MudButton Variant="Variant.Text" Color="Color.Primary">Learn More</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
+        @for (int i = 0; i < 6; i++) // Adjust the number of skeletons as needed
+        {
+            <MudItem xs="6" sm="4" md="3" lg="2">
+                <MudCard>
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="150px" Width="167px" />
+                    <MudCardContent>
+                        <div class="recipe-content">
+                            <MudSkeleton Animation="Animation.Wave" Width="@($"{Random.Next(60, 90).ToString()}%")" />
+                            <MudSkeleton Animation="Animation.Wave" Width="@($"{Random.Next(30, 90).ToString()}%")" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
     }
-</MudBlazor.MudGrid>
-
+    else
+    {
+        foreach (var recipe in Recipes)
+        {
+            <MudItem xs="6" sm="4" md="3" lg="2" @onclick="(async) => NavigateToRecipe(recipe.Id).ConfigureAwait(false)">
+                <MudCard>
+                    <MudCardMedia Image="@GetImageSrc(recipe.Images.FirstOrDefault())" Height="150" />
+                    <MudCardContent>
+                        <div class="recipe-content">
+                            <RecipeRating Recipe="recipe" UserId="UserId"/>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    }
+</MudGrid>

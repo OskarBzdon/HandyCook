@@ -6,6 +6,12 @@ namespace HandyCook.Application.Data
 {
     public class Recipe
     {
+        public Recipe()
+        {
+            Images = new HashSet<File>();
+            Ratings = new HashSet<Rating>();
+        }
+
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
@@ -16,5 +22,9 @@ namespace HandyCook.Application.Data
         [ForeignKey(nameof(Recipe.UserNavigation))]
         public string UserNavigationId { get; set; }
         public virtual User UserNavigation { get; set; }
+
+        [InverseProperty(nameof(Rating.RecipeNavigation))]
+        public virtual ICollection<Rating> Ratings { get; set; }
+
     }
 }

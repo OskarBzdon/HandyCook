@@ -1,0 +1,79 @@
+﻿@page "/recipe/{RecipeId:int}"
+@using HandyCook.Application.Data
+@using HandyCook.Application.Services
+@using global::AutoMapper
+
+@inject ApplicationDbContext ctx
+@inject IUserService UserService
+@inject ISnackbar Snackbar
+@inject IMapper Mapper
+
+@if (Recipe is null)
+{
+    <MudContainer>
+        <MudCard>
+            <MudSkeleton Animation="Animation.Wave" Height="200px" Width="100%" SkeletonType="SkeletonType.Rectangle" />
+        </MudCard>
+        <MudCard>
+            <MudSkeleton Animation="Animation.Wave" Height="20px" Width="100px" />
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Width="90%" />
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Width="80%" />
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Width="85%" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Width="90%" />
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Width="80%" />
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Width="85%" />
+                </MudItem>
+            </MudGrid>
+        </MudCard>
+        <MudCard>
+            <MudSkeleton Animation="Animation.Wave" Height="20px" Width="100px" />
+            <MudList>
+                <MudListItem>
+                    <MudSkeleton Animation="Animation.Wave" Height="10px" Width="90%" />
+                </MudListItem>
+                <MudListItem>
+                    <MudSkeleton Animation="Animation.Wave" Height="10px" Width="90%" />
+                </MudListItem>
+                <MudListItem>
+                    <MudSkeleton Animation="Animation.Wave" Height="10px" Width="90%" />
+                </MudListItem>
+            </MudList>
+        </MudCard>
+    </MudContainer>
+}
+else
+{
+    <MudText Typo="Typo.h4" Align="Align.Center">@Recipe.Name</MudText>
+    <div>
+        <MudImage ObjectFit="ObjectFit.Cover" Height="160" Width="350" Src="@GetImageSrc(Recipe.Images.FirstOrDefault())" Alt="Recipe Image" Elevation="25" Class="rounded-lg" />
+        <div class="d-flex justify-space-between">
+            <MudChip Class="ml-3 mt-n5" @onclick="() => rateClicked = !rateClicked && UserId != Recipe.UserNavigationId">
+                @if (!rateClicked)
+                {
+                    <MudRating ReadOnly SelectedValue="1" MaxValue="1" />
+                }
+                else
+                {
+                    <MudRating SelectedValueChanged="RateRecipe" MaxValue="5" />
+                }
+                <span><b>3.5</b></span>
+            </MudChip>
+            <MudAvatar Size=Size.Large Class="mr-6 mt-n7" Elevation="25" Color="Color.Primary" Variant="Variant.Filled">
+                <MudIcon Icon="@Icons.Material.Filled.PlayArrow" />
+            </MudAvatar>
+        </div>
+    </div>
+    <MudDivider DividerType="DividerType.Middle" />
+}
+
+<style>
+    .mud-chip {
+        background-color: white !important;
+        box-shadow: var(--mud-elevation-25);
+    }
+
+</style>

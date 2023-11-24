@@ -21,15 +21,20 @@ namespace HandyCook.Application.Data
             this.Bytes = bytes;
         }
 
-        public File(IBrowserFile file)
+        public static async Task<File> CreateAsync(IBrowserFile file)
         {
-            var stream = file.OpenReadStream(file.Size);
-            var memoryStream = new MemoryStream();
-            memoryStream.CopyToAsync(stream).RunSynchronously();
+            var instance = new File();
+            using (var stream = file.OpenReadStream(file.Size))
+            using (var memoryStream = new MemoryStream())
+            {
+                await stream.CopyToAsync(memoryStream);
+                instance.Bytes = memoryStream.ToArray();
+            }
 
-            Bytes = memoryStream.ToArray();
-            Name = file.Name;
-            Format = file.ContentType;
+            instance.Name = file.Name;
+            instance.Format = file.ContentType;
+
+            return instance;
         }
     }
 }

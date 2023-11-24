@@ -7,5 +7,7 @@ namespace HandyCook.Application.Data
     {
         [InverseProperty(nameof(Recipe.UserNavigation))]
         public virtual ICollection<Recipe> Recipes { get; set; }
+        [InverseProperty(nameof(Rating.UserNavigation))]
+        public virtual ICollection<Rating> Ratings { get; set; }
     }
 }

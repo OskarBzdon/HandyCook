@@ -4,16 +4,19 @@ using HandyCook.Application.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace HandyCook.Application.Data.Migrations
+namespace HandyCook.Application.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231106195318_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,6 +53,33 @@ namespace HandyCook.Application.Data.Migrations
                     b.HasIndex("RecipeId");
 
                     b.ToTable("File");
+                });
+
+            modelBuilder.Entity("HandyCook.Application.Data.Rating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RecipeNavigationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserNavigationId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipeNavigationId");
+
+                    b.HasIndex("UserNavigationId");
+
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("HandyCook.Application.Data.Recipe", b =>
@@ -288,12 +318,31 @@ namespace HandyCook.Application.Data.Migrations
                         .HasForeignKey("RecipeId");
                 });
 
+            modelBuilder.Entity("HandyCook.Application.Data.Rating", b =>
+                {
+                    b.HasOne("HandyCook.Application.Data.Recipe", "RecipeNavigation")
+                        .WithMany("Ratings")
+                        .HasForeignKey("RecipeNavigationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("HandyCook.Application.Data.User", "UserNavigation")
+                        .WithMany("Ratings")
+                        .HasForeignKey("UserNavigationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("RecipeNavigation");
+
+                    b.Navigation("UserNavigation");
+                });
+
             modelBuilder.Entity("HandyCook.Application.Data.Recipe", b =>
                 {
                     b.HasOne("HandyCook.Application.Data.User", "UserNavigation")
                         .WithMany("Recipes")
                         .HasForeignKey("UserNavigationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("UserNavigation");
@@ -353,10 +402,14 @@ namespace HandyCook.Application.Data.Migrations
             modelBuilder.Entity("HandyCook.Application.Data.Recipe", b =>
                 {
                     b.Navigation("Images");
+
+                    b.Navigation("Ratings");
                 });
 
             modelBuilder.Entity("HandyCook.Application.Data.User", b =>
                 {
+                    b.Navigation("Ratings");
+
                     b.Navigation("Recipes");
                 });
 #pragma warning restore 612, 618

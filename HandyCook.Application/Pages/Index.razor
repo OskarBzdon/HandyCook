@@ -2,10 +2,14 @@
 @using HandyCook.Application.Data;
 @using HandyCook.Application.Services;
 @using MudBlazor
+@using global::AutoMapper
+@using HandyCook.Application.Components
 
 @inject ApplicationDbContext ctx
 @inject IUserService UserService
 @inject ISnackbar Snackbar
+@inject IMapper Mapper
+@inject NavigationManager NavigationManager
 
 <PageTitle>Recipe Gallery</PageTitle>
 
@@ -16,7 +20,7 @@
         {
             <MudItem xs="6" sm="4" md="3" lg="2">
                 <MudCard>
-                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="200px" Width="167px" />
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="150px" Width="167px" />
                     <MudCardContent>
                         <div class="recipe-content">
                             <MudSkeleton Animation="Animation.Wave" Width="@($"{Random.Next(60, 90).ToString()}%")" />
@@ -31,13 +35,12 @@
     {
         foreach (var recipe in Recipes)
         {
-            <MudItem xs="6" sm="4" md="3" lg="2">
+            <MudItem xs="6" sm="4" md="3" lg="2" @onclick="(async) => NavigateToRecipe(recipe.Id).ConfigureAwait(false)">
                 <MudCard>
-                    <MudCardMedia Image="@GetImageSrc(recipe.Images.FirstOrDefault())" Height="200" />
+                    <MudCardMedia Image="@GetImageSrc(recipe.Images.FirstOrDefault())" Height="150" />
                     <MudCardContent>
                         <div class="recipe-content">
-                            <MudRating Color="Color.Warning" ReadOnly="UserId == recipe.UserNavigationId" SelectedValueChanged="@(value => RateRecipeAsync(recipe.Id, value))" SelectedValue="recipe.AverageRating" MaxValue="5" />
-                            <MudText Typo="Typo.h6">@recipe.Name</MudText>
+                            <RecipeRating Recipe="recipe" UserId="UserId"/>
                         </div>
                     </MudCardContent>
                 </MudCard>

@@ -1,0 +1,70 @@
+﻿@using HandyCook.Application.Data
+@using HandyCook.Application.VOs
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext ctx
+@inject ISnackbar Snackbar
+
+@* <MudRating ReadOnly="UserId == Recipe.UserNavigationId || string.IsNullOrWhiteSpace(UserId)" SelectedValue=Recipe.AverageRating SelectedValueChanged="RateRecipeAsync" MaxValue="5" /> *@
+<MudChip Class="mt-n8">
+    <MudRating ReadOnly="true" SelectedValue=1 MaxValue="1" />
+    <span><b>@Recipe.AverageRating.ToString("F1")</b></span>
+</MudChip>
+<MudText Typo="Typo.h6">@Recipe.Name</MudText>
+
+
+@code {
+    [Parameter]
+    public RecipeVo Recipe { get; set; }
+
+    [Parameter]
+    public string UserId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    public async Task RateRecipeAsync(int ratingValue)
+    {
+        try
+        {
+            var message = "Rating added succesfully!";
+            var existingRating = await ctx.Ratings.FirstOrDefaultAsync(r => r.RecipeNavigationId == Recipe.Id && r.UserNavigationId == UserId);
+            if (UserId is not null && UserId != Recipe.UserNavigationId)
+            {
+                Snackbar.Add($"{Recipe.Id} - {ratingValue}", Severity.Success);
+                if (existingRating is null)
+                {
+                    var rating = new Rating
+                        {
+                            RecipeNavigationId = Recipe.Id,
+                            UserNavigationId = UserId,
+                            Value = ratingValue
+                        };
+                    ctx.Ratings.Add(rating);
+                }
+                else
+                {
+                    // Allow the user to update the rating or not.
+                    existingRating.Value = ratingValue;
+                    ctx.Ratings.Update(existingRating);
+                    message = "Rating updated succesfully!";
+                }
+                ctx.SaveChanges();
+                Snackbar.Add(message, Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to add recipe: {ex.Message}", Severity.Error);
+        }
+    }
+}
+
+<style>
+    .mud-chip {
+        background-color: white;
+        pointer-events: none;
+    }
+</style>

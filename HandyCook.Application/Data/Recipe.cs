@@ -26,17 +26,5 @@ namespace HandyCook.Application.Data
         [InverseProperty(nameof(Rating.RecipeNavigation))]
         public virtual ICollection<Rating> Ratings { get; set; }
 
-        public virtual int AverageRating => (int)(Ratings.Any() ? Math.Ceiling(Ratings.Average(r => r.Value)) : 0);
-
-        public virtual string RatingLabelText => (AverageRating) switch
-        {
-            1 => "Very bad",
-            2 => "Bad",
-            3 => "Sufficient",
-            4 => "Good",
-            5 => "Awesome!",
-            _ => "Rate our product!"
-        };
-
     }
 }

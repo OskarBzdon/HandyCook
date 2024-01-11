@@ -10,6 +10,8 @@ namespace HandyCook.Application.Data
         {
             Images = new HashSet<File>();
             Ratings = new HashSet<Rating>();
+            Steps = new HashSet<Step>();
+            Ingredients = new HashSet<Ingredient>();
         }
 
         [Key]
@@ -25,6 +27,16 @@ namespace HandyCook.Application.Data
 
         [InverseProperty(nameof(Rating.RecipeNavigation))]
         public virtual ICollection<Rating> Ratings { get; set; }
+
+        [InverseProperty(nameof(Step.RecipeNavigation))]
+        public virtual ICollection<Step> Steps { get; set; }
+
+        [InverseProperty(nameof(Ingredient.RecipeNavigation))]
+        public virtual ICollection<Ingredient> Ingredients { get; set; }
+
+        public virtual double AverageRating => Ratings.Any() ? Ratings.Average(r => r.Value) : 0;
+
+        public virtual int AverageRatingStars => (int)Math.Round(AverageRating);
 
     }
 }

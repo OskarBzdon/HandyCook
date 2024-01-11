@@ -18,7 +18,6 @@
             <MudText Typo="Typo.h4">Add Recipe</MudText>
 
             <MudTextField Label="Title" @bind-Value="model.Name" />
-            <MudTextField Label="Description" @bind-Value="model.Description" />
 
             <MudFileUpload T="IBrowserFile" Accept=".jpg, .png" FilesChanged="UploadFile">
                 <ButtonTemplate>
@@ -31,6 +30,33 @@
                     </MudButton>
                 </ButtonTemplate>
             </MudFileUpload>
+
+            <MudTextField Label="Description" @bind-Value="model.Description" />
+
+            <MudText Typo="Typo.h6">Ingredients</MudText>
+            @foreach (var ingredient in model.Ingredients)
+            {
+                <MudChipSet>
+                    <MudChip>@ingredient.Name</MudChip>
+                        <!-- Assuming Amount is required -->
+                        <MudTextField @bind-Value="ingredient.Amount" Label="Amount" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Primary" OnClick="@(() => RemoveIngredient(ingredient))" />
+                    </MudChipSet>
+            }
+            <MudTextField @bind-Value="newIngredientName" Label="Ingredient name" />
+            <MudTextField @bind-Value="newIngredientAmount" Label="Amount" />
+            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="AddIngredient" />
+
+
+            <MudText Typo="Typo.h6">Steps</MudText>
+            @foreach (var step in model.Steps)
+            {
+                <MudTextField @bind-Value="step.Description" Label="Step description" FullWidth />
+                <!-- Add more step details as needed -->
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Primary" OnClick="@(() => RemoveStep(step))" />
+            }
+            <MudTextField @bind-Value="newStepDescription" Label="Add a step" FullWidth />
+             <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="AddStep" />
 
             <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveRecipe">Add recipe</MudButton>
             
@@ -52,6 +78,9 @@
     private bool isError = false;
     private bool isFileUploaded = false; // To keep track of file upload status
 
+    private string newStepDescription;
+    private string newIngredientName; // Temp storage for new ingredient name
+    private string newIngredientAmount; // Temp storage for new ingredient amount
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,6 +105,35 @@
             isFileUploaded = false;
             Snackbar.Add("Failed to upload file: " + ex.Message, Severity.Error);
         }
+    }
+
+    private void AddIngredient()
+    {
+        if (!string.IsNullOrWhiteSpace(newIngredientName) && !string.IsNullOrWhiteSpace(newIngredientAmount))
+        {
+            model.Ingredients.Add(new Ingredient { Name = newIngredientName, Amount = newIngredientAmount });
+            newIngredientName = string.Empty; // Reset the name input
+            newIngredientAmount = string.Empty; // Reset the amount input
+        }
+    }
+
+    private void RemoveIngredient(Ingredient ingredient)
+    {
+        model.Ingredients.Remove(ingredient);
+    }
+
+    private void AddStep()
+    {
+        if (!string.IsNullOrWhiteSpace(newStepDescription))
+        {
+            model.Steps.Add(new Step { Description = newStepDescription });
+            newStepDescription = string.Empty; // Reset the temporary input
+        }
+    }
+
+    private void RemoveStep(Step step)
+    {
+        model.Steps.Remove(step);
     }
 
     private async Task SaveRecipe()

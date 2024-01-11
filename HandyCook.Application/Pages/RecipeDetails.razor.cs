@@ -14,7 +14,7 @@ namespace HandyCook.Application.Pages
 
         public string UserId { get; set; }
 
-        public RecipeVo Recipe { get; set; }
+        public Recipe Recipe { get; set; }
 
         public bool rateClicked { get; set; } = false;
 
@@ -23,12 +23,14 @@ namespace HandyCook.Application.Pages
             await base.OnInitializedAsync();
 
             UserId = await UserService.GetCurrentUserIdAsync();
-            var recipeEntity = await ctx.Recipes
+            Recipe = await ctx.Recipes
                 .Include(r => r.Images)
                 .Include(r => r.Ratings)
+                .Include(r => r.Ingredients)
+                .Include(r => r.Steps)
                 .FirstOrDefaultAsync(r => r.Id == RecipeId);
 
-            Recipe = Mapper.Map<RecipeVo>(recipeEntity);
+            //Recipe = Mapper.Map<RecipeVo>(recipeEntity);
         }
 
         private string GetImageSrc(File? image)
@@ -73,6 +75,11 @@ namespace HandyCook.Application.Pages
             {
                 Snackbar.Add($"Failed to rate recipe: {ex.Message}", Severity.Error);
             }
+        }
+
+        public async Task PlayRecipe()
+        {
+            NavigationManager.NavigateTo($"/recipe/{RecipeId}/1");
         }
     }
 }

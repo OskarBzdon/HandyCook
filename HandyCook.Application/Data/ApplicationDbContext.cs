@@ -8,6 +8,8 @@ namespace HandyCook.Application.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Step> Steps { get; set; }
+        public DbSet<Ingredient> Ingredients { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -37,6 +39,26 @@ namespace HandyCook.Application.Data
                 .WithMany(u => u.Recipes)
                 .HasForeignKey(r => r.UserNavigationId)
                 .OnDelete(DeleteBehavior.NoAction); // And add this too if necessary
+
+            modelBuilder.Entity<Step>()
+                .HasOne(s => s.RecipeNavigation)
+                .WithMany(r => r.Steps)
+                .HasForeignKey(s => s.RecipeNavigationId)
+                .OnDelete(DeleteBehavior.Cascade); // Deleting a Recipe will delete its Steps
+
+            // Configure Ingredients
+            modelBuilder.Entity<Ingredient>()
+                .HasOne(i => i.RecipeNavigation)
+                .WithMany(r => r.Ingredients)
+                .HasForeignKey(i => i.RecipeNavigationId)
+                .OnDelete(DeleteBehavior.Cascade); // Deleting a Recipe will delete its Ingredients
+
+            modelBuilder.Entity<Ingredient>()
+                .HasOne(i => i.StepNavigation)
+                .WithMany(s => s.Ingredients)
+                .HasForeignKey(i => i.StepNavigationId)
+                .IsRequired(false) // Making the relationship to Step optional
+                .OnDelete(DeleteBehavior.NoAction); // Deleting a Step will not delete its Ingredients
         }
     }
 }

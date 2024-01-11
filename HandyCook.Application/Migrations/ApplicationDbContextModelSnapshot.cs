@@ -17,7 +17,7 @@ namespace HandyCook.Application.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.9")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -50,6 +50,37 @@ namespace HandyCook.Application.Migrations
                     b.HasIndex("RecipeId");
 
                     b.ToTable("File");
+                });
+
+            modelBuilder.Entity("HandyCook.Application.Data.Ingredient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Amount")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RecipeNavigationId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StepNavigationId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipeNavigationId");
+
+                    b.HasIndex("StepNavigationId");
+
+                    b.ToTable("Ingredients");
                 });
 
             modelBuilder.Entity("HandyCook.Application.Data.Rating", b =>
@@ -104,6 +135,39 @@ namespace HandyCook.Application.Migrations
                     b.HasIndex("UserNavigationId");
 
                     b.ToTable("Recipes");
+                });
+
+            modelBuilder.Entity("HandyCook.Application.Data.Step", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MediaFileId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecipeNavigationId")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("Temperature")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Timer")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MediaFileId");
+
+                    b.HasIndex("RecipeNavigationId");
+
+                    b.ToTable("Steps");
                 });
 
             modelBuilder.Entity("HandyCook.Application.Data.User", b =>
@@ -315,6 +379,24 @@ namespace HandyCook.Application.Migrations
                         .HasForeignKey("RecipeId");
                 });
 
+            modelBuilder.Entity("HandyCook.Application.Data.Ingredient", b =>
+                {
+                    b.HasOne("HandyCook.Application.Data.Recipe", "RecipeNavigation")
+                        .WithMany("Ingredients")
+                        .HasForeignKey("RecipeNavigationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HandyCook.Application.Data.Step", "StepNavigation")
+                        .WithMany("Ingredients")
+                        .HasForeignKey("StepNavigationId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("RecipeNavigation");
+
+                    b.Navigation("StepNavigation");
+                });
+
             modelBuilder.Entity("HandyCook.Application.Data.Rating", b =>
                 {
                     b.HasOne("HandyCook.Application.Data.Recipe", "RecipeNavigation")
@@ -343,6 +425,23 @@ namespace HandyCook.Application.Migrations
                         .IsRequired();
 
                     b.Navigation("UserNavigation");
+                });
+
+            modelBuilder.Entity("HandyCook.Application.Data.Step", b =>
+                {
+                    b.HasOne("HandyCook.Application.Data.File", "MediaFile")
+                        .WithMany()
+                        .HasForeignKey("MediaFileId");
+
+                    b.HasOne("HandyCook.Application.Data.Recipe", "RecipeNavigation")
+                        .WithMany("Steps")
+                        .HasForeignKey("RecipeNavigationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MediaFile");
+
+                    b.Navigation("RecipeNavigation");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -400,7 +499,16 @@ namespace HandyCook.Application.Migrations
                 {
                     b.Navigation("Images");
 
+                    b.Navigation("Ingredients");
+
                     b.Navigation("Ratings");
+
+                    b.Navigation("Steps");
+                });
+
+            modelBuilder.Entity("HandyCook.Application.Data.Step", b =>
+                {
+                    b.Navigation("Ingredients");
                 });
 
             modelBuilder.Entity("HandyCook.Application.Data.User", b =>

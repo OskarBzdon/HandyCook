@@ -4,6 +4,7 @@
 @using global::AutoMapper
 
 @inject ApplicationDbContext ctx
+@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject ISnackbar Snackbar
 @inject IMapper Mapper
@@ -62,12 +63,23 @@ else
                 }
                 <span><b>3.5</b></span>
             </MudChip>
-            <MudAvatar Size=Size.Large Class="mr-6 mt-n7" Elevation="25" Color="Color.Primary" Variant="Variant.Filled">
+            <MudAvatar @onclick="(async) => PlayRecipe().ConfigureAwait(false)" Size=Size.Large Class="mr-6 mt-n7" Elevation="25" Color="Color.Primary" Variant="Variant.Filled">
                 <MudIcon Icon="@Icons.Material.Filled.PlayArrow" />
             </MudAvatar>
         </div>
     </div>
     <MudDivider DividerType="DividerType.Middle" />
+    <MudText Typo="Typo.h6">Ingredients</MudText>
+    @foreach (var ingredient in Recipe.Ingredients)
+    {
+        <p>@ingredient.Name (@ingredient.Amount)</p>
+    }
+
+    <MudText Typo="Typo.h6">Steps</MudText>
+    @foreach (var step in Recipe.Steps)
+    {
+        <p>@step.Description</p>
+    }
 }
 
 <style>
@@ -76,4 +88,15 @@ else
         box-shadow: var(--mud-elevation-25);
     }
 
+    .recipe-image {
+        width: 100%; /* Adjust as per your design */
+        height: auto; /* Adjust as per your design */
+        margin-bottom: 1rem;
+    }
+
+    .ratings-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 </style>

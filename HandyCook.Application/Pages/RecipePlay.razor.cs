@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 using MudBlazor;
 using File = HandyCook.Application.Data.File;
 
@@ -35,9 +36,7 @@ namespace HandyCook.Application.Pages
             }
             else
             {
-                CognitiveService.SpeechRecognized += OnSpeechRecognized;
-                CognitiveService.KeywordDetected += OnKeywordDetected;
-                CognitiveService.StartContinuousRecognition();
+                StartSpeechRecognition();
             }
         }
 
@@ -105,10 +104,29 @@ namespace HandyCook.Application.Pages
             return $"data:image/jpeg;base64,{imageBase64Data}";
         }
 
+        private async Task StartSpeechRecognition()
+        {
+            await JSRuntime.InvokeVoidAsync("startRecognition", ["da48df2061954527a45a92f41f61d989", "northeurope"]);
+        }
+
+        private async Task StopSpeechRecognition()
+        {
+            await JSRuntime.InvokeVoidAsync("stopRecognition");
+        }
+
+
         public void Dispose()
         {
-            CognitiveService.SpeechRecognized -= OnSpeechRecognized;
-            CognitiveService.KeywordDetected -= OnKeywordDetected;
+            //CognitiveService.SpeechRecognized -= OnSpeechRecognized;
+            //CognitiveService.KeywordDetected -= OnKeywordDetected;
+        }
+
+        [JSInvokable]
+        public static Task OnSpeechRecognized(string recognizedText)
+        {
+            Console.WriteLine(recognizedText);
+
+            return Task.CompletedTask;
         }
     }
 }

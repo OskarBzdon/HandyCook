@@ -69,7 +69,6 @@ namespace HandyCook.Application.Services
         {
             if (!isKeywordRecognized)
             {
-                Console.Error.WriteLineAsync("key: " + e.Result.Text.ToLower());
                 // Check if the recognized text contains the keyword
                 var formattedText = e.Result.Text.ToLower().Replace(",", "").Replace(".", "").Replace(" ", "");
                 if (formattedText.Contains("okhandycook") || formattedText.Contains("okhandicook"))

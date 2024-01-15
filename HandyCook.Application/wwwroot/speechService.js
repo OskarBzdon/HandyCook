@@ -3,14 +3,12 @@ var recognizer;
 var keywordRecognized = false;
 
 function startRecognition(subscriptionKey, serviceRegion) {
-    var speechConfig = speechSdk.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
-    var audioConfig = speechSdk.AudioConfig.fromDefaultMicrophoneInput();
+    const speechConfig = speechSdk.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
+    const audioConfig = speechSdk.AudioConfig.fromDefaultMicrophoneInput();
     recognizer = new speechSdk.SpeechRecognizer(speechConfig, audioConfig);
     
     recognizer.recognized = (s, e) => {
         if (e.result.reason == speechSdk.ResultReason.RecognizedSpeech) {
-            //console.log(`RECOGNIZED: Text=${e.result.text}`);
-            //console.log(e.result.text.replace(/[,. ]/g, '').replace('i', 'y').toLowerCase());
             const formattedPhrase = e.result.text.replace(/[,. ]/g, '').replace('i', 'y').toLowerCase();
             if (!keywordRecognized && formattedPhrase === "okhandycook") {
                 console.log("keyword", formattedPhrase);
@@ -18,7 +16,7 @@ function startRecognition(subscriptionKey, serviceRegion) {
                 DotNet.invokeMethodAsync('HandyCook.Application', 'OnKeywordRecognized', null, null);
             }
             else if (keywordRecognized) {
-                console.log("Phrase recognizes", e.result.text);
+                console.log("Phrase recognized", e.result.text);
                 keywordRecognized = false;
                 DotNet.invokeMethodAsync('HandyCook.Application', 'OnSpeechRecognized', null, e.result.text);
             }
@@ -36,4 +34,25 @@ function stopRecognition() {
         () => console.log("Recognition stopped"),
         err => console.error(`ERROR: ${err}`)
     );
+}
+
+function SpeakText(subscriptionKey, serviceRegion, text) {
+    console.log("Speaking phrase", text);
+    const speechConfig = speechSdk.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
+    const audioConfig = sdk.AudioConfig.fromDefaultSpeakerOutput();
+    speechConfig.speechSynthesisVoiceName = "en-US-DavisNeural";
+    const speechSynthesizer = new speechSdk.SpeechSynthesizer(speechConfig, audioConfig);
+
+    speechSynthesizer.speakTextAsync(
+        text,
+        result => {
+            if (result) {
+                speechSynthesizer.close();
+                return result.audioData;
+            }
+        },
+        error => {
+            console.log(error);
+            speechSynthesizer.close();
+        });
 }

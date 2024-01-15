@@ -1,39 +1,25 @@
-﻿using Microsoft.CognitiveServices.Speech;
+﻿using Microsoft.JSInterop;
 
 namespace HandyCook.Application.Services
 {
-    public class CognitiveSpeechService : ICognitiveSpeechService
+    public class CognitiveSpeechService(IJSRuntime jSRuntime) : ICognitiveSpeechService
     {
-        private SpeechConfig SpeechConfig { get; set; }
-        private SpeechSynthesizer SpeechSynthesizer { get; set; }
+        private readonly string SpeechKey = "da48df2061954527a45a92f41f61d989";
+        private readonly string SpeechRegion = "northeurope";
 
-        private string SpeechLanguage = "en-US";
-        private string SpeechVoiceName = "en-US-DavisNeural";
-        private string SpeechStyle = "chat";
-
-        public CognitiveSpeechService()
+        public async Task SpeakText(string text)
         {
-            SpeechConfig = SpeechConfig.FromSubscription("da48df2061954527a45a92f41f61d989", "northeurope");
-            SpeechSynthesizer = new SpeechSynthesizer(SpeechConfig);
-        }
-        ~CognitiveSpeechService()
-        {
-            SpeechSynthesizer.Dispose();
+            await jSRuntime.InvokeVoidAsync("SpeakText", [SpeechKey, SpeechRegion, text]);
         }
 
-        public Task<SpeechSynthesisResult> SpeakText(string text)
+        public async Task StartSpeechRecognition()
         {
-            var ssml = $"""
-                            <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="{SpeechLanguage}">
-                                <voice name="{SpeechVoiceName}">
-                                    <mstts:express-as style="{SpeechStyle}" styledegree="2">
-                                        {text}
-                                    </mstts:express-as>
-                                </voice>
-                            </speak>
-                            """;
+            await jSRuntime.InvokeVoidAsync("startRecognition", [SpeechKey, SpeechRegion]);
+        }
 
-            return SpeechSynthesizer.SpeakSsmlAsync(ssml);
+        public async Task StopSpeechRecognition()
+        {
+            await jSRuntime.InvokeVoidAsync("stopRecognition");
         }
     }
 }

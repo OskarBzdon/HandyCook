@@ -38,7 +38,7 @@ namespace HandyCook.Application.Pages
                 ICognitiveSpeechService.KeywordRecognized += OnKeywordRecognized;
                 ICognitiveSpeechService.SpeechRecognized += OnSpeechRecognized;
 
-                StartSpeechRecognition();
+                CognitiveService.StartSpeechRecognition();
             }
         }
 
@@ -98,16 +98,6 @@ namespace HandyCook.Application.Pages
             }
             string imageBase64Data = Convert.ToBase64String(image.Bytes);
             return $"data:image/jpeg;base64,{imageBase64Data}";
-        }
-
-        private async Task StartSpeechRecognition()
-        {
-            await JSRuntime.InvokeVoidAsync("startRecognition", ["da48df2061954527a45a92f41f61d989", "northeurope"]);
-        }
-
-        private async Task StopSpeechRecognition()
-        {
-            await JSRuntime.InvokeVoidAsync("stopRecognition");
         }
 
         public void OnKeywordRecognized(object? sender, EventArgs e)

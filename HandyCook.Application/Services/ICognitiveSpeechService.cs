@@ -7,7 +7,6 @@ namespace HandyCook.Application.Services
     {
         public static EventHandler KeywordRecognized;
         public static EventHandler<string> SpeechRecognized;
-        public Task SpeakText(string text);
 
         [JSInvokable]
         public static void OnSpeechRecognized(object sender, string recognizedText)
@@ -20,6 +19,8 @@ namespace HandyCook.Application.Services
         {
             KeywordRecognized.Invoke(sender, eventArgs);
         }
+
+        public Task SpeakText(string text);
 
         public Task StartSpeechRecognition();
 

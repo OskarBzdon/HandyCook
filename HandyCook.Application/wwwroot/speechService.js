@@ -9,14 +9,13 @@ function startRecognition(subscriptionKey, serviceRegion) {
     
     recognizer.recognized = (s, e) => {
         if (e.result.reason == speechSdk.ResultReason.RecognizedSpeech) {
-            const formattedPhrase = e.result.text.replace(/[,. ]/g, '').replace('i', 'y').toLowerCase();
-            if (!keywordRecognized && formattedPhrase === "okhandycook") {
-                console.log("keyword", formattedPhrase);
+            console.log("Phrase recognized", e.result.text);
+            if (!keywordRecognized && e.result.text.replace(/[,. ]/g, '').replace('i', 'y').toLowerCase() === "okhandycook") {
+                console.log("keyword detected");
                 keywordRecognized = true;
                 DotNet.invokeMethodAsync('HandyCook.Application', 'OnKeywordRecognized', null, null);
             }
             else if (keywordRecognized) {
-                console.log("Phrase recognized", e.result.text);
                 keywordRecognized = false;
                 DotNet.invokeMethodAsync('HandyCook.Application', 'OnSpeechRecognized', null, e.result.text);
             }
@@ -39,20 +38,18 @@ function stopRecognition() {
 function SpeakText(subscriptionKey, serviceRegion, text) {
     console.log("Speaking phrase", text);
     const speechConfig = speechSdk.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
-    const audioConfig = sdk.AudioConfig.fromDefaultSpeakerOutput();
+    const audioConfig = speechSdk.AudioConfig.fromDefaultSpeakerOutput();
     speechConfig.speechSynthesisVoiceName = "en-US-DavisNeural";
     const speechSynthesizer = new speechSdk.SpeechSynthesizer(speechConfig, audioConfig);
 
     speechSynthesizer.speakTextAsync(
         text,
         result => {
-            if (result) {
-                speechSynthesizer.close();
-                return result.audioData;
-            }
+            speechSynthesizer.close();
         },
         error => {
-            console.log(error);
+            console.log("Error in speech synthesis:", error);
             speechSynthesizer.close();
-        });
+        }
+    );
 }

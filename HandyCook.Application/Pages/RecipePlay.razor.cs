@@ -59,7 +59,7 @@ namespace HandyCook.Application.Pages
 
         public void OnSpeechRecognized(object sender, string recognizedText)
         {
-            InvokeAsync(() =>
+            InvokeAsync(async () =>
             {
                 if (recognizedText.ToLower().Contains("step"))
                 {
@@ -68,10 +68,11 @@ namespace HandyCook.Application.Pages
                         var previousStep = Recipe?.Steps.ElementAt(StepNo - 1 - 1);
                         if (previousStep is not null)
                         {
-                            CognitiveService.SpeakText("I'm going to the previous step.");
+                            await CognitiveService.SpeakText("I'm going to the previous step.");
                             NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo - 1}");
                             StepNo--;
-                            InitializeStep();
+                            Task.Delay(1000).Wait();
+                            await InitializeStep();
                         }
                     }
                     if (StepNo < Recipe?.Steps.Count && recognizedText.ToLower().Contains("next"))
@@ -79,10 +80,11 @@ namespace HandyCook.Application.Pages
                         var nextStep = Recipe?.Steps.ElementAt(StepNo - 1 + 1);
                         if (nextStep is not null)
                         {
-                            CognitiveService.SpeakText("I'm going to the next step.");
+                            await CognitiveService.SpeakText("I'm going to the next step.");
                             NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo + 1}");
                             StepNo++;
-                            InitializeStep();
+                            Task.Delay(1000).Wait();
+                            await InitializeStep();
                         }
                     }
                 }

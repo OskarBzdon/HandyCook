@@ -27,7 +27,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddSingleton<ICognitiveSpeechService, CognitiveSpeechService>();
+builder.Services.AddScoped<ICognitiveSpeechService, CognitiveSpeechService>();
 
 builder.Services.AddAuthentication()
    .AddGoogle(options =>

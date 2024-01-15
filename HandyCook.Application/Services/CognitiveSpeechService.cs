@@ -1,48 +1,24 @@
-﻿using HandyCook.Application.Data;
-using Microsoft.CognitiveServices.Speech;
-using Microsoft.CognitiveServices.Speech.Audio;
+﻿using Microsoft.CognitiveServices.Speech;
 
 namespace HandyCook.Application.Services
 {
     public class CognitiveSpeechService : ICognitiveSpeechService
     {
-        public event EventHandler<string> SpeechRecognized;
-        public event EventHandler KeywordDetected;
-
         private SpeechConfig SpeechConfig { get; set; }
         private SpeechSynthesizer SpeechSynthesizer { get; set; }
-
-        private AudioConfig AudioConfig { get; set; }
-        private KeywordRecognizer KeywordRecognizer { get; set; }
-        private KeywordRecognitionModel KeywordRecognitionModel { get; set; }
-        private SpeechRecognizer SpeechRecognizer { get; set; }
 
         private string SpeechLanguage = "en-US";
         private string SpeechVoiceName = "en-US-DavisNeural";
         private string SpeechStyle = "chat";
 
-        private bool isKeywordRecognized = false;
-
         public CognitiveSpeechService()
         {
             SpeechConfig = SpeechConfig.FromSubscription("da48df2061954527a45a92f41f61d989", "northeurope");
             SpeechSynthesizer = new SpeechSynthesizer(SpeechConfig);
-
-            AudioConfig = AudioConfig.FromDefaultMicrophoneInput();
-            KeywordRecognizer = new KeywordRecognizer(AudioConfig);
-            SpeechRecognizer = new SpeechRecognizer(SpeechConfig, AudioConfig);
-
-            var path = Directory.GetCurrentDirectory() + @"\Utils\ok-handycook.table";
-            KeywordRecognitionModel = KeywordRecognitionModel.FromFile(path);
-
-            SpeechRecognizer.Recognized += OnRecognized;
-            SpeechRecognizer.Canceled += OnCanceled;
         }
         ~CognitiveSpeechService()
         {
             SpeechSynthesizer.Dispose();
-            AudioConfig.Dispose();
-            KeywordRecognizer.Dispose();
         }
 
         public Task<SpeechSynthesisResult> SpeakText(string text)
@@ -58,39 +34,6 @@ namespace HandyCook.Application.Services
                             """;
 
             return SpeechSynthesizer.SpeakSsmlAsync(ssml);
-        }
-
-        public async void StartContinuousRecognition()
-        {
-            await SpeechRecognizer.StartContinuousRecognitionAsync().ConfigureAwait(false);
-        }
-
-        private void OnRecognized(object sender, SpeechRecognitionEventArgs e)
-        {
-            if (!isKeywordRecognized)
-            {
-                // Check if the recognized text contains the keyword
-                var formattedText = e.Result.Text.ToLower().Replace(",", "").Replace(".", "").Replace(" ", "");
-                if (formattedText.Contains("okhandycook") || formattedText.Contains("okhandicook"))
-                {
-                    isKeywordRecognized = true;
-                    KeywordDetected?.Invoke(this, EventArgs.Empty);
-                }
-            }
-            else
-            {
-                // Handle the recognized sentence after the keyword was detected
-                SpeechRecognized?.Invoke(this, e.Result.Text);
-
-                // Reset the flag
-                isKeywordRecognized = false;
-            }
-        }
-
-        private void OnCanceled(object sender, SpeechRecognitionCanceledEventArgs e)
-        {
-            // Handle cancellation and errors
-            Console.Error.WriteLineAsync($"Recognition canceled. Error: {e.ErrorCode}, Details: {e.ErrorDetails}");
         }
     }
 }

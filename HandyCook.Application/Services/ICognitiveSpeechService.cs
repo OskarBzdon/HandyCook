@@ -1,13 +1,24 @@
 ﻿using Microsoft.CognitiveServices.Speech;
+using Microsoft.JSInterop;
 
 namespace HandyCook.Application.Services
 {
     public interface ICognitiveSpeechService
     {
-        public event EventHandler<string> SpeechRecognized;
-        public event EventHandler KeywordDetected;
-
+        public static EventHandler KeywordRecognized;
+        public static EventHandler<string> SpeechRecognized;
         public Task<SpeechSynthesisResult> SpeakText(string text);
-        public void StartContinuousRecognition();
+
+        [JSInvokable]
+        public static void OnSpeechRecognized(object sender, string recognizedText)
+        {
+            SpeechRecognized.Invoke(sender, recognizedText);
+        }
+
+        [JSInvokable]
+        public static void OnKeywordRecognized(object sender, EventArgs eventArgs)
+        {
+            KeywordRecognized.Invoke(sender, eventArgs);
+        }
     }
 }

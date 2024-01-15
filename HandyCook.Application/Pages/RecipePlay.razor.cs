@@ -1,8 +1,6 @@
 ﻿using HandyCook.Application.Data;
-using HandyCook.Application.VOs;
+using HandyCook.Application.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.CognitiveServices.Speech;
-using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
 using MudBlazor;
@@ -10,7 +8,7 @@ using File = HandyCook.Application.Data.File;
 
 namespace HandyCook.Application.Pages
 {
-    public partial class RecipePlay
+    public partial class RecipePlay : IDisposable
     {
         [Parameter]
         public int RecipeId { get; set; }
@@ -29,6 +27,7 @@ namespace HandyCook.Application.Pages
                 .FirstOrDefaultAsync(r => r.Id == RecipeId);
 
             InitializeStep();
+
             if (Recipe is null || Step is null)
             {
                 Snackbar.Add($"Failed to find recipe or step with this id", Severity.Error);
@@ -36,23 +35,29 @@ namespace HandyCook.Application.Pages
             }
             else
             {
+                ICognitiveSpeechService.KeywordRecognized += OnKeywordRecognized;
+                ICognitiveSpeechService.SpeechRecognized += OnSpeechRecognized;
+
                 StartSpeechRecognition();
             }
         }
 
-        private void InitializeStep()
+        private Task InitializeStep()
         {
             if (Recipe is not null)
             {
                 Step = Recipe?.Steps.ElementAt(StepNo - 1);
                 if (Step is not null)
                 {
+                    Task.Delay(1000).Wait();
                     CognitiveService.SpeakText(Step.Description);
                 }
             }
+
+            return Task.CompletedTask;
         }
 
-        private void OnSpeechRecognized(object sender, string recognizedText)
+        public void OnSpeechRecognized(object sender, string recognizedText)
         {
             InvokeAsync(() =>
             {
@@ -85,15 +90,6 @@ namespace HandyCook.Application.Pages
             });
         }
 
-        private void OnKeywordDetected(object sender, EventArgs e)
-        {
-            InvokeAsync(() =>
-            {
-                Snackbar.Add("Keyword recognized, listening for a sentence...", Severity.Info);
-                StateHasChanged();
-            });
-        }
-
         private string GetImageSrc(File? image)
         {
             if (image is null || image.Bytes.Length is 0)
@@ -114,19 +110,19 @@ namespace HandyCook.Application.Pages
             await JSRuntime.InvokeVoidAsync("stopRecognition");
         }
 
+        public void OnKeywordRecognized(object? sender, EventArgs e)
+        {
+            InvokeAsync(() =>
+            {
+                Snackbar.Add("Keyword recognized, listening for a sentence...", Severity.Info);
+                StateHasChanged();
+            });
+        }
 
         public void Dispose()
         {
-            //CognitiveService.SpeechRecognized -= OnSpeechRecognized;
-            //CognitiveService.KeywordDetected -= OnKeywordDetected;
-        }
-
-        [JSInvokable]
-        public static Task OnSpeechRecognized(string recognizedText)
-        {
-            Console.WriteLine(recognizedText);
-
-            return Task.CompletedTask;
+            ICognitiveSpeechService.KeywordRecognized -= OnKeywordRecognized;
+            ICognitiveSpeechService.SpeechRecognized -= OnSpeechRecognized;
         }
     }
 }

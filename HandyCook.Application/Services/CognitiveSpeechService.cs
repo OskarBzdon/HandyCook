@@ -13,6 +13,11 @@ namespace HandyCook.Application.Services
             JSRuntime = jSRuntime;
         }
 
+        ~CognitiveSpeechService()
+        {
+            StopSpeechRecognition().Wait();
+        }
+
         public async Task SpeakText(string text)
         {
             await JSRuntime.InvokeVoidAsync("SpeakText", [SpeechKey, SpeechRegion, text]);

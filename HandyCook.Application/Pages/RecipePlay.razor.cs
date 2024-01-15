@@ -115,6 +115,8 @@ namespace HandyCook.Application.Pages
         {
             ICognitiveSpeechService.KeywordRecognized -= OnKeywordRecognized;
             ICognitiveSpeechService.SpeechRecognized -= OnSpeechRecognized;
+
+            CognitiveService.StopSpeechRecognition();
         }
     }
 }

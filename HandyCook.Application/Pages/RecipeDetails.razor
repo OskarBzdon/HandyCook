@@ -69,6 +69,8 @@ else
         </div>
     </div>
     <MudDivider DividerType="DividerType.Middle" />
+    <MudText Typo="Typo.body1">@Recipe.Description</MudText>
+    <MudDivider DividerType="DividerType.Middle" />
     <MudText Typo="Typo.h6">Ingredients</MudText>
     @foreach (var ingredient in Recipe.Ingredients)
     {

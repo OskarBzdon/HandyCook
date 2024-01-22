@@ -2,7 +2,6 @@
 using HandyCook.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.JSInterop;
 using MudBlazor;
 using File = HandyCook.Application.Data.File;
 
@@ -16,6 +15,7 @@ namespace HandyCook.Application.Pages
         public int StepNo { get; set; }
         public Recipe Recipe { get; set; }
         public Step Step { get; set; }
+        public TimeSpan? timer { get; set; } = new TimeSpan(0, 10, 0);
 
         protected override async Task OnInitializedAsync()
         {
@@ -24,6 +24,7 @@ namespace HandyCook.Application.Pages
             Recipe = await ctx.Recipes
                 .Include(r => r.Ingredients)
                 .Include(r => r.Steps)
+                .ThenInclude(s => s.Ingredients)
                 .FirstOrDefaultAsync(r => r.Id == RecipeId);
 
             InitializeStep();
@@ -37,33 +38,57 @@ namespace HandyCook.Application.Pages
             {
                 ICognitiveSpeechService.KeywordRecognized += OnKeywordRecognized;
                 ICognitiveSpeechService.SpeechRecognized += OnSpeechRecognized;
+                CountdownTimerService.TimeLeft = timer;
+                CountdownTimerService.OnTick += UpdateTimer;
+                CountdownTimerService.OnCompleted += TimerCompleted;
 
                 CognitiveService.StartSpeechRecognition();
             }
         }
 
-        private Task InitializeStep()
+        private async Task InitializeStep(string textBefore = null, string textAfter = null)
         {
             if (Recipe is not null)
             {
                 Step = Recipe?.Steps.ElementAt(StepNo - 1);
                 if (Step is not null)
                 {
-                    Task.Delay(1000).Wait();
-                    CognitiveService.SpeakText(Step.Description);
+                    await Task.Delay(1000);
+                    await CognitiveService.SpeakText($"{textBefore} {Step.Description} {textAfter}");
                 }
             }
+        }
 
-            return Task.CompletedTask;
+        private void UpdateTimer(TimeSpan? newTime)
+        {
+            timer = newTime;
+            InvokeAsync(StateHasChanged); // Request the UI to re-render
+        }
+
+        private void TimerCompleted()
+        {
+            CognitiveService.SpeakText("Time is up!");
         }
 
         public void OnSpeechRecognized(object sender, string recognizedText)
         {
             InvokeAsync(async () =>
             {
-                if (recognizedText.ToLower().Contains("step"))
+                var textToLower = recognizedText.ToLower();
+                if (timer is not null && timer.Value.TotalSeconds > 0 && (textToLower.Contains("timer") || textToLower.Contains("count")))
                 {
-                    if (StepNo > 0 && recognizedText.ToLower().Contains("previous"))
+                    if (textToLower.Contains("start") || textToLower.Contains("begin"))
+                    {
+                        CountdownTimerService.StartTimer(timer);
+                    }
+                    else if (textToLower.Contains("stop") || textToLower.Contains("end"))
+                    {
+                        timer = CountdownTimerService.StopTimer();
+                    }
+                }
+                else if (textToLower.Contains("step") || textToLower.Contains("description"))
+                {
+                    if (StepNo > 0 && textToLower.Contains("previous"))
                     {
                         var previousStep = Recipe?.Steps.ElementAt(StepNo - 1 - 1);
                         if (previousStep is not null)
@@ -75,7 +100,7 @@ namespace HandyCook.Application.Pages
                             await InitializeStep();
                         }
                     }
-                    if (StepNo < Recipe?.Steps.Count && recognizedText.ToLower().Contains("next"))
+                    else if (StepNo < Recipe?.Steps.Count && textToLower.Contains("next"))
                     {
                         var nextStep = Recipe?.Steps.ElementAt(StepNo - 1 + 1);
                         if (nextStep is not null)
@@ -87,6 +112,16 @@ namespace HandyCook.Application.Pages
                             await InitializeStep();
                         }
                     }
+                    else if (textToLower.Contains("repeat"))
+                    {
+                        await InitializeStep("Sure, I will repeat the current step description.");
+                    }
+                }
+                else if (textToLower.Contains("ingredient"))
+                {
+                    var ingredients = Step.Ingredients.Count() > 0 ? Step.Ingredients : Recipe.Ingredients;
+                    var ingredientsAsPhrase = ingredients.Select(i => $"{i.Amount} times {i.Name}").Aggregate((ing1, ing2) => $"{ing1}, {ing2}");
+                    await CognitiveService.SpeakText("Sure, I will read the recipe ingredients for you. " + ingredientsAsPhrase);
                 }
                 StateHasChanged();
             });
@@ -115,6 +150,7 @@ namespace HandyCook.Application.Pages
         {
             ICognitiveSpeechService.KeywordRecognized -= OnKeywordRecognized;
             ICognitiveSpeechService.SpeechRecognized -= OnSpeechRecognized;
+            CountdownTimerService.OnCompleted -= TimerCompleted;
 
             CognitiveService.StopSpeechRecognition();
         }

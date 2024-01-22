@@ -1,0 +1,22 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField @bind-Value=RecipeName Label="Recipe name" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField @bind-Value=DescriptionPhrase Label="Description phrase" Variant="Variant.Outlined"></MudTextField>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Clear</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Apply</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string? RecipeName { get; set; }
+    [Parameter] public string? DescriptionPhrase { get; set; }
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(
+        new Dictionary<string, object>(){ { "RecipeName", RecipeName }, { "DescriptionPhrase", DescriptionPhrase} }
+    ));
+    void Cancel() => MudDialog.Cancel();
+}

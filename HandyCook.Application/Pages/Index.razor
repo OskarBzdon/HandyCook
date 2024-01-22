@@ -10,8 +10,15 @@
 @inject ISnackbar Snackbar
 @inject IMapper Mapper
 @inject NavigationManager NavigationManager
+@inject IDialogService DialogService
 
 <PageTitle>Recipe Gallery</PageTitle>
+
+<MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="0">
+    <MudButton Class="mb-3" @onclick="OpenFilters" Variant="@(FiltersApplied ? Variant.Outlined : Variant.Filled)" Color="Color.Primary">
+        @(FiltersApplied ? "Filters applied" : "Filters")
+    </MudButton>
+</MudPaper>
 
 <MudGrid Justify="Justify.FlexStart">
     @if (Recipes is null)

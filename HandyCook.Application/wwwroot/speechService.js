@@ -10,7 +10,8 @@ function startRecognition(subscriptionKey, serviceRegion) {
     recognizer.recognized = (s, e) => {
         if (e.result.reason == speechSdk.ResultReason.RecognizedSpeech) {
             console.log("Phrase recognized", e.result.text);
-            if (!keywordRecognized && e.result.text.replace(/[,. ]/g, '').replace('i', 'y').toLowerCase() === "okhandycook") {
+            const phraseFormatted = e.result.text.replace(/[,. ]/g, '').replace('i', 'y').toLowerCase();
+            if (!keywordRecognized && phraseFormatted.includes("ok") && phraseFormatted.includes("andycook")) {
                 console.log("keyword detected");
                 keywordRecognized = true;
                 DotNet.invokeMethodAsync('HandyCook.Application', 'OnKeywordRecognized', null, null);

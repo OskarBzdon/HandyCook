@@ -15,7 +15,9 @@ namespace HandyCook.Application.Pages
         public int StepNo { get; set; }
         public Recipe Recipe { get; set; }
         public Step Step { get; set; }
-        public TimeSpan? timer { get; set; } = new TimeSpan(0, 10, 0);
+        public TimeSpan? timer { get; set; } = new TimeSpan();
+
+        SwipeDirection _swipeDirection;
 
         protected override async Task OnInitializedAsync()
         {
@@ -36,6 +38,7 @@ namespace HandyCook.Application.Pages
             }
             else
             {
+                
                 ICognitiveSpeechService.KeywordRecognized += OnKeywordRecognized;
                 ICognitiveSpeechService.SpeechRecognized += OnSpeechRecognized;
                 CountdownTimerService.TimeLeft = timer;
@@ -53,6 +56,8 @@ namespace HandyCook.Application.Pages
                 Step = Recipe?.Steps.ElementAt(StepNo - 1);
                 if (Step is not null)
                 {
+                    timer = new TimeSpan(0, (int)Step?.Timer, 0);
+                    CountdownTimerService.TimeLeft = timer;
                     await Task.Delay(1000);
                     await CognitiveService.SpeakText($"{textBefore} {Step.Description} {textAfter}");
                 }

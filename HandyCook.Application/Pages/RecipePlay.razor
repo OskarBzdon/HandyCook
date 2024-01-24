@@ -51,12 +51,21 @@
 }
 else
 {
-    <MudImage ObjectFit="ObjectFit.Cover" Height="160" Width="350" Src="@GetImageSrc(Step.MediaFile)" Alt="Step Image" Elevation="25" Class="rounded-lg" />
-    <MudDivider DividerType="DividerType.Middle" />
-    <MudText Typo="Typo.h6">@Step.Description</MudText>
+    <MudSwipeArea OnSwipeEnd="@((d) => _swipeDirection = d)" Style="width: 100%; height: 100%">
+        <MudText Typo="@Typo.body1">@_swipeDirection</MudText>
+            <MudImage ObjectFit="ObjectFit.Cover" Height="160" Width="350" Src="@GetImageSrc(Step.MediaFile)" Alt="Step Image" Elevation="25" Class="rounded-lg" />
+            <MudDivider DividerType="DividerType.Middle" />
+            <MudText Typo="Typo.h6">@Step.Description</MudText>
+            @if (Step.Temperature is not default(double))
+        {
+            <MudText Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment" Title="Temperature" /> @Step.Temperature &#8451;</MudText>
+        }
 
-    @if (timer is not null)
-    {
-        <MudTimePicker PickerVariant="PickerVariant.Static" Orientation="Orientation.Landscape" @bind-Time="@CountdownTimerService.TimeLeft" />
-    }
+        @if (timer is not null)
+        {
+            <MudPaper Class="fixed bottom-0" MaxWidth="350px">
+                <MudTimePicker PickerVariant="PickerVariant.Static" OpenTo="OpenTo.Minutes" @bind-Time="@CountdownTimerService.TimeLeft" />
+            </MudPaper>
+        }
+    </MudSwipeArea>
 }

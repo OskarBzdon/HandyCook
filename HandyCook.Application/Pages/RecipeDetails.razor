@@ -68,20 +68,24 @@ else
             </MudAvatar>
         </div>
     </div>
-    <MudDivider DividerType="DividerType.Middle" />
+    <MudDivider Class="mb-3" DividerType="DividerType.Middle" />
     <MudText Typo="Typo.body1">@Recipe.Description</MudText>
     <MudDivider DividerType="DividerType.Middle" />
     <MudText Typo="Typo.h6">Ingredients</MudText>
+    <ul>
     @foreach (var ingredient in Recipe.Ingredients)
     {
-        <p>@ingredient.Name (@ingredient.Amount)</p>
+        <li>@ingredient.Name (@ingredient.Amount)</li>
     }
+    </ul>
 
     <MudText Typo="Typo.h6">Steps</MudText>
+    <ol>
     @foreach (var step in Recipe.Steps)
     {
-        <p>@step.Description</p>
+        <li>@step.Description</li>
     }
+    </ol>
 }
 
 <style>

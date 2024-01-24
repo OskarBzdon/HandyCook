@@ -52,11 +52,16 @@
             @foreach (var step in model.Steps)
             {
                 <MudTextField @bind-Value="step.Description" Label="Step description" FullWidth />
+                <MudTextField @bind-Value="step.Temperature" Label="Temperature (optional)" />
+                <MudTextField @bind-Value="step.Timer" Label="Timer (optional, in minutes)" />
                 <!-- Add more step details as needed -->
                 <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Primary" OnClick="@(() => RemoveStep(step))" />
             }
-            <MudTextField @bind-Value="newStepDescription" Label="Add a step" FullWidth />
-             <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="AddStep" />
+            <MudTextField @bind-Value="newStepDescription" Label="Add a step description" FullWidth />
+            <MudNumericField @bind-Value="newStepTemperature" Label="Temperature (optional)" />
+            <MudTextField @bind-Value="newStepTimer" Label="Timer (optional, in minutes)" />
+            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="AddStep" />
+
 
             <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveRecipe">Add recipe</MudButton>
             
@@ -78,9 +83,12 @@
     private bool isError = false;
     private bool isFileUploaded = false; // To keep track of file upload status
 
-    private string newStepDescription;
     private string newIngredientName; // Temp storage for new ingredient name
     private string newIngredientAmount; // Temp storage for new ingredient amount
+
+    private string newStepDescription;
+    private double newStepTemperature;
+    private TimeSpan? newStepTimer = new TimeSpan();
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,8 +134,17 @@
     {
         if (!string.IsNullOrWhiteSpace(newStepDescription))
         {
-            model.Steps.Add(new Step { Description = newStepDescription });
-            newStepDescription = string.Empty; // Reset the temporary input
+            var newStep = new Step();
+
+            newStep.Description = newStepDescription;
+            newStep.Temperature = newStepTemperature;
+
+            newStep.Timer = newStepTimer?.TotalMinutes;
+
+            model.Steps.Add(newStep);
+            newStepDescription = string.Empty; // Reset
+            newStepTemperature = default; // Reset
+            newStepTimer = new TimeSpan(); // Reset
         }
     }
 

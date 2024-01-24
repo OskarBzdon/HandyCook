@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace HandyCook.Application.Services
 {
@@ -18,9 +19,9 @@ namespace HandyCook.Application.Services
             StopSpeechRecognition().Wait();
         }
 
-        public async Task SpeakText(string text)
+        public async Task SpeakText(string text, ElementReference? element = null)
         {
-            await JSRuntime.InvokeVoidAsync("SpeakText", [SpeechKey, SpeechRegion, text]);
+            await JSRuntime.InvokeVoidAsync("SpeakText", [SpeechKey, SpeechRegion, text, element]);
         }
 
         public async Task StartSpeechRecognition()

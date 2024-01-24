@@ -60,6 +60,7 @@ else
             <MudText Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment" Title="Temperature" /> @Step.Temperature &#8451;</MudText>
         }
     </MudSwipeArea>
+    <button @ref="invisibleButton" style="display: none;" @onclick="HandleInvisibleButtonClick"></button>
     @if (timer is not null)
     {
         <MudPaper Class="ps-5 fixed bottom-0 object-center" MaxWidth="350px">

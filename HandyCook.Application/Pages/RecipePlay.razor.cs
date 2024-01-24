@@ -2,6 +2,7 @@
 using HandyCook.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 using MudBlazor;
 using File = HandyCook.Application.Data.File;
 
@@ -17,7 +18,7 @@ namespace HandyCook.Application.Pages
         public Step Step { get; set; }
         public TimeSpan? timer { get; set; } = new TimeSpan();
 
-        SwipeDirection _swipeDirection;
+        private ElementReference invisibleButton;
 
         protected override async Task OnInitializedAsync()
         {
@@ -130,13 +131,20 @@ namespace HandyCook.Application.Pages
             });
         }
 
+        private void HandleInvisibleButtonClick()
+        {
+            Console.WriteLine("Button clicked");
+        }
+
         private async Task TryToMoveToPreviousStep(bool voiceInterupt = true)
         {
             var previousStep = Recipe?.Steps.ElementAt(StepNo - 1 - 1);
             if (previousStep is not null)
             {
-                if (voiceInterupt) 
-                    await CognitiveService.SpeakText("I'm going to the previous step.");
+                if (voiceInterupt)
+                {
+                    await CognitiveService.SpeakText("I'm going to the previous step.", invisibleButton);
+                }
                 NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo - 1}");
                 StepNo--;
                 Task.Delay(1000).Wait();
@@ -150,7 +158,9 @@ namespace HandyCook.Application.Pages
             if (nextStep is not null)
             {
                 if (voiceInterupt)
-                    await CognitiveService.SpeakText("I'm going to the next step.");
+                {
+                    await CognitiveService.SpeakText("I'm going to the next step.", invisibleButton);
+                }
                 NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo + 1}");
                 StepNo++;
                 Task.Delay(1000).Wait();

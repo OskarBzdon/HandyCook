@@ -1,4 +1,5 @@
-﻿using Microsoft.CognitiveServices.Speech;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.CognitiveServices.Speech;
 using Microsoft.JSInterop;
 
 namespace HandyCook.Application.Services
@@ -20,7 +21,7 @@ namespace HandyCook.Application.Services
             KeywordRecognized.Invoke(sender, eventArgs);
         }
 
-        public Task SpeakText(string text);
+        public Task SpeakText(string text, ElementReference? element = null);
 
         public Task StartSpeechRecognition();
 

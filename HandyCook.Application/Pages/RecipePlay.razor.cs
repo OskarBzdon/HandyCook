@@ -75,6 +75,20 @@ namespace HandyCook.Application.Pages
             CognitiveService.SpeakText("Time is up!");
         }
 
+        private void OnSwipeDetected(SwipeEventArgs swipeEventArgs)
+        {
+            Console.WriteLine(swipeEventArgs);
+            switch (swipeEventArgs.SwipeDirection)
+            {
+                case SwipeDirection.LeftToRight:
+                    TryToMoveToNextStep(false);
+                    break;
+                case SwipeDirection.RightToLeft:
+                    TryToMoveToPreviousStep(false);
+                    break;
+            }
+        }
+
         public void OnSpeechRecognized(object sender, string recognizedText)
         {
             InvokeAsync(async () =>
@@ -95,27 +109,11 @@ namespace HandyCook.Application.Pages
                 {
                     if (StepNo > 0 && textToLower.Contains("previous"))
                     {
-                        var previousStep = Recipe?.Steps.ElementAt(StepNo - 1 - 1);
-                        if (previousStep is not null)
-                        {
-                            await CognitiveService.SpeakText("I'm going to the previous step.");
-                            NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo - 1}");
-                            StepNo--;
-                            Task.Delay(1000).Wait();
-                            await InitializeStep();
-                        }
+                        TryToMoveToPreviousStep();
                     }
                     else if (StepNo < Recipe?.Steps.Count && textToLower.Contains("next"))
                     {
-                        var nextStep = Recipe?.Steps.ElementAt(StepNo - 1 + 1);
-                        if (nextStep is not null)
-                        {
-                            await CognitiveService.SpeakText("I'm going to the next step.");
-                            NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo + 1}");
-                            StepNo++;
-                            Task.Delay(1000).Wait();
-                            await InitializeStep();
-                        }
+                        TryToMoveToNextStep();
                     }
                     else if (textToLower.Contains("repeat"))
                     {
@@ -130,6 +128,34 @@ namespace HandyCook.Application.Pages
                 }
                 StateHasChanged();
             });
+        }
+
+        private async Task TryToMoveToPreviousStep(bool voiceInterupt = true)
+        {
+            var previousStep = Recipe?.Steps.ElementAt(StepNo - 1 - 1);
+            if (previousStep is not null)
+            {
+                if (voiceInterupt) 
+                    await CognitiveService.SpeakText("I'm going to the previous step.");
+                NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo - 1}");
+                StepNo--;
+                Task.Delay(1000).Wait();
+                await InitializeStep();
+            }
+        }
+
+        private async Task TryToMoveToNextStep(bool voiceInterupt = true)
+        {
+            var nextStep = Recipe?.Steps.ElementAt(StepNo - 1 + 1);
+            if (nextStep is not null)
+            {
+                if (voiceInterupt)
+                    await CognitiveService.SpeakText("I'm going to the next step.");
+                NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo + 1}");
+                StepNo++;
+                Task.Delay(1000).Wait();
+                await InitializeStep();
+            }
         }
 
         private string GetImageSrc(File? image)

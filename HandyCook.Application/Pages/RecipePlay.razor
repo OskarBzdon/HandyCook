@@ -51,7 +51,7 @@
 }
 else
 {
-    <MudSwipeArea OnSwipeEnd="@((d) => _swipeDirection = d)" Style="width: 100%; height: 100%">
+    <MudSwipeArea OnSwipeEnd="@((d) => _swipeDirection = d.SwipeDirection)" Style="width: 100%; height: 100%">
         <MudText Typo="@Typo.body1">@_swipeDirection</MudText>
             <MudImage ObjectFit="ObjectFit.Cover" Height="160" Width="350" Src="@GetImageSrc(Step.MediaFile)" Alt="Step Image" Elevation="25" Class="rounded-lg" />
             <MudDivider DividerType="DividerType.Middle" />

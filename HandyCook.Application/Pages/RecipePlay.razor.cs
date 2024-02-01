@@ -18,8 +18,6 @@ namespace HandyCook.Application.Pages
         public Step Step { get; set; }
         public TimeSpan? timer { get; set; } = new TimeSpan();
 
-        private ElementReference invisibleButton;
-
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
@@ -131,11 +129,6 @@ namespace HandyCook.Application.Pages
             });
         }
 
-        private void HandleInvisibleButtonClick()
-        {
-            Console.WriteLine("Button clicked");
-        }
-
         private async Task TryToMoveToPreviousStep(bool voiceInterupt = true)
         {
             var previousStep = Recipe?.Steps.ElementAt(StepNo - 1 - 1);
@@ -143,7 +136,7 @@ namespace HandyCook.Application.Pages
             {
                 if (voiceInterupt)
                 {
-                    await CognitiveService.SpeakText("I'm going to the previous step.", invisibleButton);
+                    await CognitiveService.SpeakText("I'm going to the previous step.");
                 }
                 NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo - 1}");
                 StepNo--;
@@ -159,7 +152,7 @@ namespace HandyCook.Application.Pages
             {
                 if (voiceInterupt)
                 {
-                    await CognitiveService.SpeakText("I'm going to the next step.", invisibleButton);
+                    await CognitiveService.SpeakText("I'm going to the next step.");
                 }
                 NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo + 1}");
                 StepNo++;

@@ -36,11 +36,13 @@ function stopRecognition() {
     );
 }
 
-function SpeakText(subscriptionKey, serviceRegion, text, element) {
+function SpeakText(subscriptionKey, serviceRegion, text) {
     console.log("Speaking phrase", text);
-    console.log("Click element: ", element);
-    if (element !== undefined)
-        element.click();
+    const btn = document.getElementById('invisibleBtn');
+    if (btn !== null) {
+        console.log('click');
+        btn.click();
+    }
     const speechConfig = speechSdk.SpeechConfig.fromSubscription(subscriptionKey, serviceRegion);
     const audioConfig = speechSdk.AudioConfig.fromDefaultSpeakerOutput();
     speechConfig.speechSynthesisVoiceName = "en-US-DavisNeural";

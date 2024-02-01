@@ -21,7 +21,7 @@ namespace HandyCook.Application.Services
             KeywordRecognized.Invoke(sender, eventArgs);
         }
 
-        public Task SpeakText(string text, ElementReference? element = null);
+        public Task SpeakText(string text);
 
         public Task StartSpeechRecognition();
 

@@ -1,4 +1,5 @@
-﻿using HandyCook.Application.Data;
+﻿using Azure.Core;
+using HandyCook.Application.Data;
 using HandyCook.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -17,17 +18,19 @@ namespace HandyCook.Application.Pages
         public Recipe Recipe { get; set; }
         public Step Step { get; set; }
         public TimeSpan? timer { get; set; } = new TimeSpan();
+        private bool isIOSSystem = false;
 
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
+            isIOSSystem =  await JSRuntime.InvokeAsync<bool>("isIOS");
 
             Recipe = await ctx.Recipes
                 .Include(r => r.Ingredients)
                 .Include(r => r.Steps)
                 .ThenInclude(s => s.Ingredients)
                 .FirstOrDefaultAsync(r => r.Id == RecipeId);
-
+            await Console.Out.WriteLineAsync("init");
             InitializeStep();
 
             if (Recipe is null || Step is null)
@@ -138,7 +141,8 @@ namespace HandyCook.Application.Pages
                 {
                     await CognitiveService.SpeakText("I'm going to the previous step.");
                 }
-                NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo - 1}");
+                NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo - 1}", isIOSSystem);
+
                 StepNo--;
                 Task.Delay(1000).Wait();
                 await InitializeStep();
@@ -154,7 +158,8 @@ namespace HandyCook.Application.Pages
                 {
                     await CognitiveService.SpeakText("I'm going to the next step.");
                 }
-                NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo + 1}");
+                NavigationManager.NavigateTo($"/recipe/{RecipeId}/{StepNo + 1}", isIOSSystem);
+
                 StepNo++;
                 Task.Delay(1000).Wait();
                 await InitializeStep();

@@ -23,7 +23,6 @@ namespace HandyCook.Application.Pages
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
-            isIOSSystem =  await JSRuntime.InvokeAsync<bool>("isIOS");
 
             Recipe = await ctx.Recipes
                 .Include(r => r.Ingredients)
@@ -48,6 +47,16 @@ namespace HandyCook.Application.Pages
                 CountdownTimerService.OnCompleted += TimerCompleted;
 
                 CognitiveService.StartSpeechRecognition();
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            base.OnAfterRenderAsync(firstRender);
+            if (firstRender)
+            {
+                isIOSSystem = await JSRuntime.InvokeAsync<bool>("isIOS");
+                StateHasChanged();
             }
         }
 

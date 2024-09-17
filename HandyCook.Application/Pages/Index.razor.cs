@@ -1,10 +1,7 @@
-﻿using AutoMapper;
-using HandyCook.Application.Components;
-using HandyCook.Application.Data;
+﻿using HandyCook.Application.Components;
 using HandyCook.Application.VOs;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
-using MudBlazor.Charts;
 using File = HandyCook.Application.Data.File;
 
 namespace HandyCook.Application.Pages
@@ -40,7 +37,6 @@ namespace HandyCook.Application.Pages
                                            .Include(recipe => recipe.Images)
                                            .Include(recipe => recipe.Ratings);
 
-            // Using AutoMapper to map entities to DTOs or view models
             Recipes = Mapper.Map<List<RecipeVo>>(recipeEntities);
         }
 
@@ -48,8 +44,6 @@ namespace HandyCook.Application.Pages
         {
             if (image is null || image.Bytes.Length is 0)
             {
-                // Return a default image if the recipe doesn't have one.
-                // You would need an actual default image in base64 format
                 return "images/no_image.png";
             }
             string imageBase64Data = Convert.ToBase64String(image.Bytes);

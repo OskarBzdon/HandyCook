@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using HandyCook.Application.Data;
+﻿using HandyCook.Application.Data;
 using HandyCook.Application.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +38,7 @@ namespace HandyCook.Application.Pages
             }
             else
             {
-                
+
                 ICognitiveSpeechService.KeywordRecognized += OnKeywordRecognized;
                 ICognitiveSpeechService.SpeechRecognized += OnSpeechRecognized;
                 CountdownTimerService.TimeLeft = timer;
@@ -128,13 +127,13 @@ namespace HandyCook.Application.Pages
                     }
                     else if (textToLower.Contains("repeat"))
                     {
-                        await InitializeStep("Sure, I will repeat the current step description.");
+                        await CognitiveService.SpeakText($"Sure, I will repeat the current step description. {Step.Description}");
                     }
                 }
                 else if (textToLower.Contains("ingredient"))
                 {
                     var ingredients = Step.Ingredients.Count() > 0 ? Step.Ingredients : Recipe.Ingredients;
-                    var ingredientsAsPhrase = ingredients.Select(i => $"{i.Amount} times {i.Name}").Aggregate((ing1, ing2) => $"{ing1}, {ing2}");
+                    var ingredientsAsPhrase = ingredients.Select(i => $"{i.Amount} {i.Name}").Aggregate((ing1, ing2) => $"{ing1}, {ing2}");
                     await CognitiveService.SpeakText("Sure, I will read the recipe ingredients for you. " + ingredientsAsPhrase);
                 }
                 StateHasChanged();

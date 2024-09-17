@@ -46,7 +46,6 @@
                 }
                 else
                 {
-                    // Allow the user to update the rating or not.
                     existingRating.Value = ratingValue;
                     ctx.Ratings.Update(existingRating);
                     message = "Rating updated succesfully!";

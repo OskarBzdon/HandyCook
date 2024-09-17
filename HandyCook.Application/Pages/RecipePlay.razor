@@ -51,13 +51,13 @@
 }
 else
 {
-    <MudSwipeArea OnSwipeEnd="OnSwipeDetected" Style="width: 100%; height: 350px;">
+    <MudSwipeArea OnSwipeEnd="OnSwipeDetected" Style="width: 100%;">
         <MudImage ObjectFit="ObjectFit.Cover" Height="160" Width="350" Src="@GetImageSrc(Step.MediaFile)" Alt="Step Image" Elevation="25" Class="rounded-lg" />
         <MudDivider DividerType="DividerType.Middle" />
-        <MudText Typo="Typo.h6">@Step.Description</MudText>
+        <MudText class="mt-4" Typo="Typo.h6">@Step.Description</MudText>
         @if (Step.Temperature is not default(double))
         {
-            <MudText Typo="Typo.h6"><MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment" Title="Temperature" /> @Step.Temperature &#8451;</MudText>
+            <MudText class="mt-6 mb-2" Typo="Typo.subtitle1">Temperature <MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment" Title="Temperature" />@Step.Temperature &#8451;</MudText>
         }
     </MudSwipeArea>
     @if (timer is not null)

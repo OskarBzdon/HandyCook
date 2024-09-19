@@ -27,8 +27,9 @@ namespace HandyCook.Application.Pages
                 .Include(r => r.Ingredients)
                 .Include(r => r.Steps)
                 .ThenInclude(s => s.Ingredients)
+                .Include(r => r.Steps)
+                .ThenInclude(s => s.MediaFile)
                 .FirstOrDefaultAsync(r => r.Id == RecipeId);
-            await Console.Out.WriteLineAsync("init");
             InitializeStep();
 
             if (Recipe is null || Step is null)
@@ -87,13 +88,12 @@ namespace HandyCook.Application.Pages
 
         private void OnSwipeDetected(SwipeEventArgs swipeEventArgs)
         {
-            Console.WriteLine(swipeEventArgs);
             switch (swipeEventArgs.SwipeDirection)
             {
-                case SwipeDirection.LeftToRight:
+                case SwipeDirection.RightToLeft:
                     TryToMoveToNextStep(false);
                     break;
-                case SwipeDirection.RightToLeft:
+                case SwipeDirection.LeftToRight:
                     TryToMoveToPreviousStep(false);
                     break;
             }

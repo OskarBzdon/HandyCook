@@ -52,6 +52,7 @@
 else
 {
     <MudSwipeArea OnSwipeEnd="OnSwipeDetected" Style="width: 100%;">
+        <MudText Align="Align.Center" Typo="Typo.subtitle2">@StepNo / @Recipe.Steps.Count</MudText>
         <MudImage ObjectFit="ObjectFit.Cover" Height="160" Width="350" Src="@GetImageSrc(Step.MediaFile)" Alt="Step Image" Elevation="25" Class="rounded-lg" />
         <MudDivider DividerType="DividerType.Middle" />
         <MudText class="mt-4" Typo="Typo.h6">@Step.Description</MudText>
